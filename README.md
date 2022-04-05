@@ -1,2 +1,2 @@
 # ViT_Survey
-[Document Link](https://jhtobigs.notion.site/ViT-Study-271fad3436ed4626a3473933f24ad45a)
+[Document Link](https://www.notion.so/ViT-Study-520e8fcd8b524ab39c331cce826889a1)
