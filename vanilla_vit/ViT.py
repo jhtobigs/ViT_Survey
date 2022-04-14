@@ -120,7 +120,7 @@ class ViT():
         x += self.pos_embedding
 
         x = self.transformer(x)
-
+        # TODO: mlp haed 
         return x
 
 # Linear projection - patch
