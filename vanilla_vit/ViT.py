@@ -13,8 +13,9 @@ class PreNorm():
         self.layernorm = nn.LayerNormalization()
         self.fn = fn
 
-    def call(self,x):
-        self.fn(self.layernorm(x),True)
+    def __call__(self,x):
+        x = self.fn(self.layernorm(x))
+        return x
 
 class MultiHaedAttention(Layer):
     def __init__(self,dim, n_heads, drop_out=0) -> None:
@@ -45,7 +46,7 @@ class MultiHaedAttention(Layer):
         z = rearrange(z, 'b h n d -> b n (h d)')
         
         z = self.to_out(z)
-        return A,z
+        return z
 
 class MLP(Layer):
     def __init__(self,dim, mlp_dim) -> None:
