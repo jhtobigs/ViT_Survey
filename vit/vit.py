@@ -47,3 +47,20 @@ class PatchEmbedding(Layer):
     def call(self, patches):
         patches = self.linear_projection(patches)
         return patches
+
+
+# ToDo Docstrings
+class PositionalEmbedding(Layer):
+    """Learnable Positional Embedding for tokens"""
+
+    def __init__(self, num_patches: int, dims: int):
+        super().__init__()
+        self.num_patches = num_patches
+        self.embedding = Embedding(input_dim=num_patches + 2, output_dim=dims)
+
+    def call(self, patches):
+        B, N, D = tf.shape(patches)
+        position = tf.range(0, N)
+        pos_embedding = self.embedding(position)[tf.newaxis]
+        pos_embedding = tf.repeat(pos_embedding, B, axis=0)
+        return pos_embedding
