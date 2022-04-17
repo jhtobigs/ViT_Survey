@@ -64,3 +64,24 @@ class PositionalEmbedding(Layer):
         pos_embedding = self.embedding(position)[tf.newaxis]
         pos_embedding = tf.repeat(pos_embedding, B, axis=0)
         return pos_embedding
+
+
+# ToDo Docstrings
+class PatchEncoder(Layer):
+    def __init__(self, patch_size: int, num_patches: int, dims: int):
+        super().__init__()
+        self.patch_split = PatchPartion(patch_size)
+        self.patch_embedding = PatchEmbedding(dims)
+        self.position_embedding = PositionalEmbedding(num_patches, dims)
+
+    def _append_class_token(self, patches):
+        class_token = tf.zeros_like(patches[:, :1, :])
+        patches = tf.concat([class_token, patches], axis=1)
+        return patches
+
+    def call(self, x):
+        x = self.patch_split(x)
+        x = self.patch_embedding(x)
+        x = self._append_class_token(x)
+        x += self.position_embedding(x)
+        return x
