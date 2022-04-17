@@ -36,3 +36,14 @@ class PatchPartion(Layer):
         """
         patches = self.split_patches(images=images)
         return patches
+
+
+# ToDo Docstrings
+class PatchEmbedding(Layer):
+    def __init__(self, dims: int):
+        super().__init__()
+        self.linear_projection = Dense(units=dims)
+
+    def call(self, patches):
+        patches = self.linear_projection(patches)
+        return patches
