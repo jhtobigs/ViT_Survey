@@ -103,3 +103,19 @@ class MLPBlock(Layer):
         x = self.fc2(x)
         x = self.dropout2(x)
         return x
+
+
+class EncoderBlock(Layer):
+    def __init__(self, num_heads, ffn_dims, dims, dropout_rate, activation="gelu"):
+        super().__init__()
+        self.layernorm1 = LayerNormalization(epsilon=1e-6)
+        self.msa = MultiHeadAttention(num_heads=num_heads, dims=dims)
+        self.layernorm2 = LayerNormalization(epsilon=1e-6)
+        self.mlp = MLPBlock(ffn_dims=ffn_dims, dims=dims, dropout_rate=dropout_rate, activation=activation)
+
+    def call(self, x):
+        x = self.layernorm1(x)
+        x = self.msa(x, x, x)
+        x = self.layernorm2(x)
+        x = self.mlp(x)
+        return x
