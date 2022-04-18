@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.keras.models import Model, Sequential
+from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Layer, Dense, Dropout, Embedding, LayerNormalization
 from transformer.transformer import MultiHeadAttention
 
@@ -155,3 +155,28 @@ class VisualTransformer(Model):
         x = self.layernorm(x)
         x = self.mlp_head(x)
         return x
+
+
+# To Do : Make layers available in Graph Mode
+"""
+def build_vit(
+    image_size: int,
+    patch_size: int,
+    num_classes=1000,
+    num_layers=12,
+    num_heads=12,
+    ffn_dims=3072,
+    dims=768,
+    dropout_rate=0.1,
+    activation="gelu",
+):
+    num_patches = (image_size**2) // (patch_size**2)
+    x = Input([image_size, image_size, 3])
+    y = PatchEncoder(patch_size=patch_size, num_patches=num_patches, dims=dims)(x)
+    for _ in range(num_layers):
+        y = EncoderBlock(num_heads, ffn_dims, dims, dropout_rate, activation)(y)
+    y = y[:, 0, :]
+    y = LayerNormalization(epsilon=1e-6)
+    y = Dense(units=num_classes, activation="softmax")
+    return Model(x, y)
+"""
