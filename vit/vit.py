@@ -1,5 +1,7 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Layer, Dense, Embedding
+from tensorflow.keras.models import Model, Sequential
+from tensorflow.keras.layers import Layer, Dense, Dropout, Embedding, LayerNormalization
+from transformer.transformer import MultiHeadAttention
 
 
 class PatchPartion(Layer):
@@ -84,4 +86,20 @@ class PatchEncoder(Layer):
         x = self.patch_embedding(x)
         x = self._append_class_token(x)
         x += self.position_embedding(x)
+        return x
+
+
+class MLPBlock(Layer):
+    def __init__(self, ffn_dims=2048, dims=512, dropout_rate=0.1, activation="gelu"):
+        super().__init__()
+        self.fc1 = Dense(units=ffn_dims, activation=activation)
+        self.dropout1 = Dropout(rate=dropout_rate)
+        self.fc2 = Dense(units=dims, activation=activation)
+        self.dropout2 = Dropout(rate=dropout_rate)
+
+    def call(self, x):
+        x = self.fc1(x)
+        x = self.dropout1(x)
+        x = self.fc2(x)
+        x = self.dropout2(x)
         return x
