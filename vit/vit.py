@@ -119,3 +119,39 @@ class EncoderBlock(Layer):
         x = self.layernorm2(x)
         x = self.mlp(x)
         return x
+
+
+class VisualTransformer(Model):
+    def __init__(
+        self,
+        image_size: int,
+        patch_size: int,
+        num_classes=1000,
+        num_layers=12,
+        num_heads=12,
+        ffn_dims=3072,
+        dims=768,
+        dropout_rate=0.1,
+        activation="gelu",
+    ):
+        super().__init__()
+        assert image_size % patch_size == 0, "image_size should be separated by patch_size."
+        num_patchs = (image_size**2) // (patch_size**2)
+        self.image_size = image_size
+        self.patch_size = patch_size
+
+        self.patch_encoder = PatchEncoder(patch_size=patch_size, num_patches=num_patchs, dims=dims)
+        self.transformer_encoder = [
+            EncoderBlock(num_heads, ffn_dims, dims, dropout_rate, activation) for _ in range(num_layers)
+        ]
+        self.layernorm = LayerNormalization(epsilon=1e-6)
+        self.mlp_head = Dense(units=num_classes, activation="softmax")
+
+    def call(self, x):
+        x = self.patch_encoder(x)
+        for encoder in self.transformer_encoder:
+            x = encoder(x)
+        x = x[:, 0, :]
+        x = self.layernorm(x)
+        x = self.mlp_head(x)
+        return x
