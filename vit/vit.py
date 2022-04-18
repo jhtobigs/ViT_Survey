@@ -136,11 +136,11 @@ class VisualTransformer(Model):
     ):
         super().__init__()
         assert image_size % patch_size == 0, "image_size should be separated by patch_size."
-        num_patchs = (image_size**2) // (patch_size**2)
+        num_patches = (image_size**2) // (patch_size**2)
         self.image_size = image_size
         self.patch_size = patch_size
 
-        self.patch_encoder = PatchEncoder(patch_size=patch_size, num_patches=num_patchs, dims=dims)
+        self.patch_encoder = PatchEncoder(patch_size=patch_size, num_patches=num_patches, dims=dims)
         self.transformer_encoder = [
             EncoderBlock(num_heads, ffn_dims, dims, dropout_rate, activation) for _ in range(num_layers)
         ]
