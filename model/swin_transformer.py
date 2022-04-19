@@ -1,4 +1,6 @@
+import numpy as np
 import tensorflow as tf
+from tensorflow.keras import Model
 from tensorflow.keras.layers import Layer, Conv2D, Dense, LayerNormalization, Flatten
 from model.vit import MLPBlock
 from transformer.transformer import MultiHeadAttention
@@ -194,4 +196,26 @@ class PatchMerging(Layer):
         x = tf.concat([x0, x1, x2, x3], -1)  # B H/2 W/2 4*C
         x = self.ln(x)
         x = self.merge_dense(x)
+        return x
+
+
+class SwinTransformer(Model):
+    def __init__(self, image_size, C, num_blocks: list, window_size=7):
+        super().__init__()
+        patch_size = [4, 8, 16, 32]
+        dims = [C, 2 * C, 4 * C, 8 * C]
+        input_resolution = [image_size // patch for patch in patch_size]
+        self.patch_encoder = PatchEncoder(image_size, dims[0], patch_size[0])
+        for i, num_iter in enumerate(num_blocks):
+            if i == 0:
+                self.blocks = [SwinTransformerBlock(input_resolution[0], dims[0], window_size)]
+                continue
+            self.blocks.append(PatchMerging(dims[i]))
+            for _ in range(num_iter // 2):
+                self.blocks.append(SwinTransformerBlock(input_resolution[i], dims[i], window_size))
+
+    def call(self, x):
+        x = self.patch_encoder(x)
+        for block in self.blocks:
+            x = block(x)
         return x
