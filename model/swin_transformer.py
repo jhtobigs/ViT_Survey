@@ -89,3 +89,58 @@ class BiasMultiHeadAttention(MultiHeadAttention):
         x = tf.nn.softmax(x, axis=-1)
         x = tf.matmul(x, v)
         return x
+
+
+class WindowAttention(Layer):
+    def __init__(self, shift_size, input_resolution, dims=96, window_size=7):
+        super().__init__()
+        self.shift_size = shift_size
+        self.input_resolution = input_resolution
+        self.window_size = window_size
+        self.dims = dims
+        self.num_heads = dims // 32
+        self.bias_attention = BiasMultiHeadAttention(self.num_heads, dims, window_size)
+        if shift_size > 0:
+            self.attn_mask = self._make_swin_mask()
+        else:
+            self.attn_mask = None
+
+    def _make_swin_mask(self):
+        img_mask = np.zeros((1, self.input_resolution, self.input_resolution, 1))
+        h_slices = (
+            slice(0, -self.window_size),
+            slice(-self.window_size, -self.shift_size),
+            slice(-self.shift_size, None),
+        )
+        w_slices = (
+            slice(0, -self.window_size),
+            slice(-self.window_size, -self.shift_size),
+            slice(-self.shift_size, None),
+        )
+        cnt = 0
+        for h in h_slices:
+            for w in w_slices:
+                img_mask[:, h, w, :] = cnt
+                cnt += 1
+
+        img_mask = tf.convert_to_tensor(img_mask)
+
+        mask_windows = window_partition(img_mask, self.window_size)  # nW, window_size, window_size, 1
+        mask_windows = tf.reshape(mask_windows, (-1, self.window_size * self.window_size))
+
+        attn_mask = tf.expand_dims(mask_windows, axis=1) - tf.expand_dims(mask_windows, axis=2)
+        attn_mask = tf.where(attn_mask == 0, x=0.0, y=-1e3)
+        return attn_mask[:, tf.newaxis]
+
+    def call(self, x):
+        B, H, W, C = tf.shape(x)
+        if self.shift_size > 0:
+            x = tf.roll(x, shift=(-self.shift_size, -self.shift_size), axis=[1, 2])
+        x = window_partition(x, self.window_size)
+        x = tf.reshape(x, (-1, self.window_size * self.window_size, C))
+        x = self.bias_attention(x, x, x, mask=self.attn_mask)
+        x = tf.reshape(x, (-1, self.window_size, self.window_size, C))
+        x = window_reverse(x, self.window_size, self.input_resolution, self.input_resolution)
+        if self.shift_size > 0:
+            x = tf.roll(x, shift=(self.shift_size, self.shift_size), axis=[1, 2])
+        return x
