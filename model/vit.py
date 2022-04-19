@@ -114,10 +114,12 @@ class EncoderBlock(Layer):
         self.mlp = MLPBlock(ffn_dims=ffn_dims, dims=dims, dropout_rate=dropout_rate, activation=activation)
 
     def call(self, x):
-        x = self.layernorm1(x)
-        x = self.msa(x, x, x)
-        x = self.layernorm2(x)
-        x = self.mlp(x)
+        y = self.layernorm1(x)
+        y = self.msa(y, y, y)
+        x = x + y
+        y = self.layernorm2(x)
+        y = self.mlp(y)
+        x = x + y
         return x
 
 
