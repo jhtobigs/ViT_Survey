@@ -178,3 +178,20 @@ class SwinTransformerBlock(Layer):
         y = self.mlp2(x)
         x = x + y
         return x
+
+
+class PatchMerging(Layer):
+    def __init__(self, dims):
+        super().__init__()
+        self.ln = LayerNormalization(epsilon=1e-6)
+        self.merge_dense = Dense(units=dims, use_bias=False)
+
+    def call(self, x):
+        x0 = x[:, 0::2, 0::2, :]  # B H/2 W/2 C
+        x1 = x[:, 1::2, 0::2, :]  # B H/2 W/2 C
+        x2 = x[:, 0::2, 1::2, :]  # B H/2 W/2 C
+        x3 = x[:, 1::2, 1::2, :]  # B H/2 W/2 C
+        x = tf.concat([x0, x1, x2, x3], -1)  # B H/2 W/2 4*C
+        x = self.ln(x)
+        x = self.merge_dense(x)
+        return x
