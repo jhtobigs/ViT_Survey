@@ -1,5 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Layer, Conv2D, Dense, LayerNormalization, Flatten
+from model.vit import MLPBlock
 from transformer.transformer import MultiHeadAttention
 
 
@@ -143,4 +144,37 @@ class WindowAttention(Layer):
         x = window_reverse(x, self.window_size, self.input_resolution, self.input_resolution)
         if self.shift_size > 0:
             x = tf.roll(x, shift=(self.shift_size, self.shift_size), axis=[1, 2])
+        return x
+
+
+class SwinTransformerBlock(Layer):
+    def __init__(self, input_resolution, dims=96, window_size=7):
+        super().__init__()
+        self.input_resolution = input_resolution
+        self.ln1 = LayerNormalization(epsilon=1e-5)
+        self.window_attention = WindowAttention(0, input_resolution, dims, window_size)
+        self.ln2 = LayerNormalization(epsilon=1e-5)
+        self.mlp1 = MLPBlock(ffn_dims=dims * 4, dims=dims)
+
+        self.ln3 = LayerNormalization(epsilon=1e-5)
+        self.swin_attention = WindowAttention(window_size // 2, input_resolution, dims, window_size)
+        self.ln4 = LayerNormalization(epsilon=1e-5)
+        self.mlp2 = MLPBlock(ffn_dims=dims * 4, dims=dims)
+
+    def call(self, x):
+        y = self.ln1(x)
+        y = self.window_attention(y)
+        x = x + y
+
+        y = self.ln2(x)
+        y = self.mlp1(x)
+        x = x + y
+
+        y = self.ln3(x)
+        y = self.swin_attention(y)
+        x = x + y
+
+        y = self.ln4(x)
+        y = self.mlp2(x)
+        x = x + y
         return x
