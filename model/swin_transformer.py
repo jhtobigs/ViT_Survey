@@ -5,6 +5,12 @@ from tensorflow.keras.layers import Layer, Conv2D, Dense, LayerNormalization, Fl
 from model.vit import MLPBlock
 from transformer.transformer import MultiHeadAttention
 
+"""
+To Do 
+1. Norm같은 디테일 논문과 같이 구현
+2. Docstring 추가
+"""
+
 
 def window_partition(x, window_size=7):
     """
