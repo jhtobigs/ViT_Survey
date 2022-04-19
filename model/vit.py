@@ -4,7 +4,7 @@ from tensorflow.keras.layers import Layer, Dense, Dropout, Embedding, LayerNorma
 from transformer.transformer import MultiHeadAttention
 
 
-class PatchPartion(Layer):
+class PatchPartition(Layer):
     """Splits Image into Patches
 
     Attributes :
@@ -72,7 +72,7 @@ class PositionalEmbedding(Layer):
 class PatchEncoder(Layer):
     def __init__(self, patch_size: int, num_patches: int, dims: int):
         super().__init__()
-        self.patch_split = PatchPartion(patch_size)
+        self.patch_split = PatchPartition(patch_size)
         self.patch_embedding = PatchEmbedding(dims)
         self.position_embedding = PositionalEmbedding(num_patches, dims)
 
