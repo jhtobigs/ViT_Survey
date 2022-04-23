@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow.keras import Model
 
 
 def create_padding_mask(inputs):
@@ -28,3 +29,7 @@ def create_padding_lookahed_mask(inputs):
     look_ahead_mask = create_look_ahead_mask(tf.shape(inputs)[1])
     mask = tf.maximum(look_ahead_mask, padding_mask)
     return mask
+
+
+def load_backbone(self, backbone_name) -> Model:
+    return None

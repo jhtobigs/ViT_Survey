@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import Input, Model
 from tensorflow.keras.layers import Layer, Dense, Dropout, LayerNormalization, Embedding
-from transformer.utils import create_padding_lookahed_mask, create_padding_mask
+from model.utils import create_padding_lookahed_mask, create_padding_mask
 
 # Todo : Make Doctstring
 
@@ -171,12 +171,18 @@ class TransformerModel(Model):
         super().__init__()
         self.e_embedding = TransformerEmbedding(e_vocab_size, max_seq_len, dims, dropout_rate)
         if share_embedding:
-            assert e_vocab_size == d_vocab_size, "If Use Embedding Sharing, encoder_vocab_size == decoder_vocab_size"
+            assert (
+                e_vocab_size == d_vocab_size
+            ), "If Use Embedding Sharing, encoder_vocab_size == decoder_vocab_size"
             self.d_embedding = self.e_embedding
         else:
             self.d_embedding = TransformerEmbedding(d_vocab_size, max_seq_len, dims, dropout_rate)
-        self.encoder = [EncoderBlock(ffn_dims, num_heads, dims, activation, dropout_rate) for i in range(num_block)]
-        self.decoder = [DecoderBlock(ffn_dims, num_heads, dims, activation, dropout_rate) for i in range(num_block)]
+        self.encoder = [
+            EncoderBlock(ffn_dims, num_heads, dims, activation, dropout_rate) for i in range(num_block)
+        ]
+        self.decoder = [
+            DecoderBlock(ffn_dims, num_heads, dims, activation, dropout_rate) for i in range(num_block)
+        ]
 
     def _get_masks(self, encoder_input, decoder_input):
         encoder_mask = create_padding_mask(encoder_input)
