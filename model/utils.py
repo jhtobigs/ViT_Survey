@@ -1,5 +1,22 @@
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras import Model
+
+
+def get_radians(len_position: int, dims: int):
+    pos = np.arange(len_position)[:, np.newaxis]
+    i = np.arange(dims)[np.newaxis, :]
+    exponent = (2 * (i // 2)) / dims
+    radians = pos / np.power(10000.0, exponent)
+    return radians
+
+
+def make_sine_pos_encoding(len_position: int, dims: int) -> np.array:
+    radians = get_radians(len_position, dims)
+    radians[:, 0::2] = np.sin(radians[:, 0::2])
+    radians[:, 1::2] = np.cos(radians[:, 1::2])
+    radians = radians.astype("float32")
+    return radians
 
 
 def create_padding_mask(inputs):
