@@ -8,9 +8,10 @@ from tensorflow import einsum
 from einops import rearrange, repeat
 from einops.layers.tensorflow import Rearrange
 
-class PreNorm():
+class PreNorm(Layer):
     def __init__(self,fn) -> None:
-        self.layernorm = nn.LayerNormalization()
+        super(PreNorm, self).__init__()
+        self.layernorm = LayerNormalization()
         self.fn = fn
 
     def __call__(self,x):
