@@ -26,9 +26,6 @@ class MultiHaedAttention(Layer):
         self.n_heads = n_heads
         self.drop_out = drop_out
         self.attn = nn.Softmax()
-#         self.W_q = nn.Dense(units=dim,use_bias=False)
-#         self.W_k = nn.Dense(units=dim,use_bias=False)
-#         self.W_v = nn.Dense(units=dim,use_bias=False)
         self.to_qkv = nn.Dense(units=inner_dim *3, use_bias=False)
     
         self.to_out = Sequential([
