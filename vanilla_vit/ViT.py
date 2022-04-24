@@ -87,20 +87,21 @@ class Transformer(Layer):
         return x
         
 
-class ViT():
-    def __init__(self,patch_size, image_size, dim, depth, n_heads, mlp_dim) -> None:
+class ViT(Model):
+    def __init__(self,patch_size, image_size, dim, depth, n_heads, mlp_dim):
+        super().__init__()
         self.patch_size = patch_size
         self.dim = dim
         self.image_size = image_size
 
         self.num_patches = image_size // patch_size
-        self.patch_embedding = Sequential([nn.Dense(units=self.dim)])
+        self.patch_embedding = Sequential([nn.Dense(units=self.dim)]) # 굳이 쓸 필요 없는 Sequential
 
         self.pos_embedding = tf.Variable(initial_value=tf.random.normal([1,(self.num_patches**2)+1,self.dim]))
         self.cls_token = tf.Variable(initial_value=tf.random.normal([1,1,self.dim]))
-
+        # self.pos_embedding 
         self.transformer = Transformer(dim, n_heads=n_heads, depth=depth, mlp_dim=mlp_dim)
-        self.mlp_haed = Sequential([
+        self.mlp_haed = Sequential([ # layer지 model 로 가져가지 않는다.
             nn.LayerNormalization(),
             nn.Dense(units=1000)
         ])
