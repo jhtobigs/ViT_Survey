@@ -120,7 +120,9 @@ class ViT(Model):
         x += self.pos_embedding
 
         x = self.transformer(x)
-        # TODO: mlp haed 
+        x = tf.reduce_mean(x,axis=1)
+
+        x = self.mlp_haed(x)
         return x
 
 # Linear projection - patch
