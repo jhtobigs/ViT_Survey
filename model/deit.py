@@ -146,7 +146,7 @@ class DistillationManager(Model):
     def call(self, inputs, training=None, mask=None):
         input, label = inputs
         print(input.shape , label.shape)
-        teacher_logit = tf.stop_gradient(self.teacher(input, training=training))
+        teacher_logit = tf.stop_gradient(self.teacher(input, training=training)) # referenced
 
         student_logit,distill_token = self.student(input)
 
