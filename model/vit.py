@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Layer, Dense, Dropout, Embedding, LayerNormalization
-from transformer.transformer import MultiHeadAttention
+from model.transformer import MultiHeadAttention
 
 
 class PatchPartition(Layer):

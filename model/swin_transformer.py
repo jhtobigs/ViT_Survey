@@ -3,7 +3,7 @@ import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Layer, Conv2D, Dense, LayerNormalization, Flatten
 from model.vit import MLPBlock
-from transformer.transformer import MultiHeadAttention
+from model.transformer import MultiHeadAttention
 
 """
 To Do 
