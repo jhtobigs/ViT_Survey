@@ -1,8 +1,9 @@
+from turtle import pos
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import Input, Model
 from tensorflow.keras.layers import Layer, Dense, Dropout, LayerNormalization, Embedding
-from transformer.utils import create_padding_lookahed_mask, create_padding_mask
+from model.utils import create_padding_lookahed_mask, create_padding_mask, make_sine_pos_encoding
 
 # Todo : Make Doctstring
 
@@ -10,27 +11,12 @@ from transformer.utils import create_padding_lookahed_mask, create_padding_mask
 class PositionalEncoding(Layer):
     def __init__(self, max_seq_len, dims=512):
         super().__init__()
-        self.dims = dims
-        self.position_encoding = self._make_encoding(max_seq_len, dims)
-
-    def _get_radians(self, max_seq_len, dims):
-        pos = np.arange(max_seq_len)[:, np.newaxis]
-        i = np.arange(dims)[np.newaxis, :]
-        exponent = (2 * (i // 2)) / dims
-        radians = pos / np.power(10000.0, exponent)
-        return radians
-
-    def _make_encoding(self, max_seq_len, dims):
-        radians = self._get_radians(max_seq_len, dims)
-        radians[:, 0::2] = np.sin(radians[:, 0::2])
-        radians[:, 1::2] = np.cos(radians[:, 1::2])
-        radians = np.expand_dims(radians, axis=0)
-        position_encoding = tf.convert_to_tensor(radians, tf.float32)
-        return position_encoding
+        pos_enc = make_sine_pos_encoding(max_seq_len, dims)[np.newaxis]
+        self.pos_enc = tf.Variable(pos_enc, trainable=False, name="pos_enc", dtype=tf.float32)
 
     def call(self, x):
         seq_len = tf.shape(x)[1]
-        return x + self.position_encoding[:, :seq_len, :]
+        return x + self.pos_enc[:, :seq_len, :]
 
 
 class TransformerEmbedding(Layer):
@@ -171,12 +157,18 @@ class TransformerModel(Model):
         super().__init__()
         self.e_embedding = TransformerEmbedding(e_vocab_size, max_seq_len, dims, dropout_rate)
         if share_embedding:
-            assert e_vocab_size == d_vocab_size, "If Use Embedding Sharing, encoder_vocab_size == decoder_vocab_size"
+            assert (
+                e_vocab_size == d_vocab_size
+            ), "If Use Embedding Sharing, encoder_vocab_size == decoder_vocab_size"
             self.d_embedding = self.e_embedding
         else:
             self.d_embedding = TransformerEmbedding(d_vocab_size, max_seq_len, dims, dropout_rate)
-        self.encoder = [EncoderBlock(ffn_dims, num_heads, dims, activation, dropout_rate) for i in range(num_block)]
-        self.decoder = [DecoderBlock(ffn_dims, num_heads, dims, activation, dropout_rate) for i in range(num_block)]
+        self.encoder = [
+            EncoderBlock(ffn_dims, num_heads, dims, activation, dropout_rate) for i in range(num_block)
+        ]
+        self.decoder = [
+            DecoderBlock(ffn_dims, num_heads, dims, activation, dropout_rate) for i in range(num_block)
+        ]
 
     def _get_masks(self, encoder_input, decoder_input):
         encoder_mask = create_padding_mask(encoder_input)
