@@ -1,3 +1,5 @@
+import tensorflow as tf
+from tensorflow.keras import Model
 from tensorflow.keras.layers import (
     Layer,
     Conv2D,
@@ -51,4 +53,33 @@ class PredictionHead(Layer):
     def call(self, x):
         x = self.gap(x)
         x = self.head(x)
+        return x
+
+
+class ConvMixer(Model):
+    def __init__(
+        self,
+        image_size: int,
+        patch_size: int,
+        kernel_size: int,
+        dims: int,
+        num_layer: int,
+        include_top=False,
+        num_classes=1000,
+    ):
+        super().__init__()
+        assert image_size % patch_size == 0, "image_size should be separated by patch_size."
+        self.num_patches = (image_size**2) // (patch_size**2)
+        self.include_top = include_top
+        self.patch_encoder = PatchEncoder(patch_size, dims)
+        self.mixer_layer = [ConvMixerLayer(dims, kernel_size) for _ in range(num_layer)]
+        if include_top:
+            self.prediction_head = PredictionHead(num_classes)
+
+    def call(self, x):
+        x = self.patch_encoder(x)
+        for mixer in self.mixer_layer:
+            x = mixer(x)
+        if self.include_top:
+            x = self.prediction_head(x)
         return x
