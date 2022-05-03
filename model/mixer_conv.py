@@ -1,4 +1,4 @@
-from tensorflow.keras.layers import Layer, Conv2D, BatchNormalization
+from tensorflow.keras.layers import Layer, Conv2D, BatchNormalization, DepthwiseConv2D
 
 
 class PatchEncoder(Layer):
@@ -13,4 +13,23 @@ class PatchEncoder(Layer):
     def call(self, x):
         x = self.embedding(x)
         x = self.bn(x)
+        return x
+
+
+class ConvMixerLayer(Layer):
+    def __init__(self, dims, kernel_size):
+        super().__init__()
+        self.depthwise = DepthwiseConv2D(
+            kernel_size=kernel_size, strides=1, padding="same", activation="gelu"
+        )
+        self.bn1 = BatchNormalization()
+        self.pointwise = Conv2D(filters=dims, kernel_size=1, activation="gelu")
+        self.bn2 = BatchNormalization()
+
+    def call(self, x):
+        y = self.depthwise(x)
+        y = self.bn1(y)
+        x = x + y
+        x = self.pointwise(x)
+        x = self.bn2(x)
         return x
