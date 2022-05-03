@@ -1,4 +1,11 @@
-from tensorflow.keras.layers import Layer, Conv2D, BatchNormalization, DepthwiseConv2D
+from tensorflow.keras.layers import (
+    Layer,
+    Conv2D,
+    BatchNormalization,
+    DepthwiseConv2D,
+    GlobalAveragePooling2D,
+    Dense,
+)
 
 
 class PatchEncoder(Layer):
@@ -32,4 +39,16 @@ class ConvMixerLayer(Layer):
         x = x + y
         x = self.pointwise(x)
         x = self.bn2(x)
+        return x
+
+
+class PredictionHead(Layer):
+    def __init__(self, num_classes: int, **kwargs):
+        super().__init__()
+        self.gap = GlobalAveragePooling2D()
+        self.head = Dense(num_classes, name="predict_head", activation="softmax")
+
+    def call(self, x):
+        x = self.gap(x)
+        x = self.head(x)
         return x
