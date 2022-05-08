@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import Input, Model
 from tensorflow.keras.layers import Layer, Dense, Dropout, LayerNormalization, Embedding
-from model.utils import create_padding_lookahed_mask, create_padding_mask, make_sine_pos_encoding
+from model.utils.utils import create_padding_lookahed_mask, create_padding_mask, make_sine_pos_encoding
 
 # Todo : Make Doctstring
 
@@ -29,7 +29,7 @@ class TransformerEmbedding(Layer):
 
     def call(self, x, training=True):
         x = self.embedding(x)
-        x *= self.dims**0.5
+        x *= self.dims ** 0.5
         x = self.positional_encoding(x)
         x = self.dropout(x)
         return x
