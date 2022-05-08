@@ -7,6 +7,7 @@ from model.vit import PositionalEmbedding
 from model.utils.mask_generator import MaskingGenerator
 
 
+# FIXME : Mask밖으로 빼고 PreTarinModel이 가지고 있어야 함
 class BEiTPatchEncoder(Layer):
     def __init__(self, patch_size: int, num_patches: int, dims: int):
         super().__init__()
