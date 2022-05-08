@@ -88,17 +88,20 @@ class MaskingGenerator:
                     break
         return delta
 
-    def __call__(self):
-        mask = np.zeros(shape=self.get_shape(), dtype=np.int)
-        mask_count = 0
-        while mask_count < self.num_masking_patches:
-            max_mask_patches = self.num_masking_patches - mask_count
-            max_mask_patches = min(max_mask_patches, self.max_num_patches)
+    # FIXME : Need TF Batch ops
+    def __call__(self, batch_size):
+        batch_mask = []
+        for i in range(batch_size):
+            mask = np.zeros(shape=self.get_shape(), dtype=np.int)
+            mask_count = 0
+            while mask_count < self.num_masking_patches:
+                max_mask_patches = self.num_masking_patches - mask_count
+                max_mask_patches = min(max_mask_patches, self.max_num_patches)
 
-            delta = self._mask(mask, max_mask_patches)
-            if delta == 0:
-                break
-            else:
-                mask_count += delta
-
-        return mask
+                delta = self._mask(mask, max_mask_patches)
+                if delta == 0:
+                    break
+                else:
+                    mask_count += delta
+            batch_mask.append(mask)
+        return np.stack(batch_mask, axis=0)
