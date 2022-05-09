@@ -10,3 +10,4 @@
 |   2  |    [DETR](https://arxiv.org/abs/2005.12872)       |  jhtobigs    |  [Link](https://jhtobigs.oopy.io/detr)       |     [Link](https://github.com/jhtobigs/ViT_Survey/blob/main/model/detr.py)           |
 |   3  |    [MLP-Mixer](https://arxiv.org/abs/2105.01601)  |  jhtobigs    |  [Link](https://jhtobigs.oopy.io/mlp_mixer)  |     [Link](https://github.com/jhtobigs/ViT_Survey/blob/main/model/mixer.py)          |
 |   3  |    [Conv-Mixer](https://arxiv.org/abs/2201.09792) |  jhtobigs    |  [Link](https://jhtobigs.oopy.io/conv_mixer) |     [Link](https://github.com/jhtobigs/ViT_Survey/blob/main/model/mixer_conv.py)     |
+|   4  |    [BEiT](https://arxiv.org/abs/2106.08254) |  jhtobigs    |  [Link](https://jhtobigs.oopy.io/beit) |     [Link](https://github.com/jhtobigs/ViT_Survey/blob/main/model/beit.py)     |
