@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Layer
+from tensorflow.keras.layers import Layer, Conv2D, LayerNormalization, Flatten
 from tensorflow.keras import Sequential
 import tensorflow.keras.layers as nn
 from tensorflow.keras.losses import kl_divergence, categorical_crossentropy
