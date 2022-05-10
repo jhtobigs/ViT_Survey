@@ -85,6 +85,27 @@ class Transformer(Layer):
             x = mlp(x) + x
 
         return x
+class PatchEmbed(Layer):
+    def __init__(self, img_size=224, patch_size=16, embed_dim=768):
+        super().__init__()
+        self.img_size = [img_size,img_size]
+        self.patch_size = [patch_size,patch_size]
+        
+        self.H, self.W = self.img_size[0] // self.patch_size[0], self.img_size[0] // self.patch_size[0]
+        self.num_patches = self.H * self.W
+        self.proj = Conv2D(embed_dim,kernel_size=patch_size,strides=patch_size)
+        self.norm = LayerNormalization(axis=1)
+
+    def call(self, x ):
+        if x.shape[1] != x.shape[2] :
+            x = rearrange(x,'b c h w -> b h w c')
+        print(x.shape)
+        B, H, W, C = x.shape
+        x = self.proj(x)
+        x = self.norm(x)
+        H, W = H // self.patch_size[0], W // self.patch_size[0]
+
+        return x, (H, W)
 
 class PyramidVisionTransformer(Model):
     def __init__(self, img_size=224):
