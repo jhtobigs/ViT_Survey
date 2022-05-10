@@ -131,44 +131,33 @@ class PyramidVisionTransformer(Model):
             setattr(self, f'position_embed_{i + 1}',pos_embed)
             setattr(self, f'transformer_{i + 1}', transformer)
             setattr(self, f'num_pathces_{i + 1}',num_patches)
-            setattr(self, f'layernorm_{i + 1}',patch_norm)
-            setattr(self, f'HW_{i+1}',[H,W])
             setattr(self, f'patch_size_{i + 1}', patch_size)
 
     def _get_pos_embed(self, pos_embed, patch_embed, H, W):
-        if H * W == self.num_pathces_1 :
+        if H * W == self.patch_embed_1.num_patches :
             return tf.reshape(pos_embed,[1,H*W,-1])
         else:
-            pos_embed = tf.reshape(pos_embed,[1,patch_embed.shape[1],patch_embed.shape[2],-1])
-            pos_embed = rearrange(pos_embed,'b h w d -> b d h w')
+            pos_embed = tf.reshape(pos_embed,[1,patch_embed.H,patch_embed.W,-1])
+            # pos_embed = rearrange(pos_embed,'b h w d -> b d h w')
             pos_embed = tf.image.resize(pos_embed,size=(H,W))
-            return rearrange(pos_embed,'b d h w -> b (h w) d')
+            return rearrange(pos_embed,'b h w d -> b (h w) d')
 
     def call(self, inputs):
         outs = []
         B = inputs.shape[0]
-
+        x = inputs
         for i in range(len(self.stages)):
             patch_embed = getattr(self,f'patch_embed_{i + 1}')
             pos_embed = getattr(self, f'position_embed_{i + 1}')
             transformer = getattr(self, f'transformer_{i + 1}')
-            patch_size = getattr(self,f'patch_size_{i + 1}')
 
-            inputs = tf.image.extract_patches(images=inputs,
-                        sizes=[1, patch_size, patch_size, 1],
-                        strides=[1, patch_size, patch_size, 1],
-                        rates=[1, 1, 1, 1],
-                        padding='VALID')
-
-            H, W = getattr(self, f'HW_{i + 1}')
-            print(inputs.shape)
-            x = patch_embed(inputs)
+            x,(H,W) = patch_embed(x)
             x = rearrange(x,'b h w d -> b (h w) d')
             if i == self.stages[-1] - 1:
-                pos_embed = self._get_pos_embed(pos_embed[:, 1:],x, H, W)
+                pos_embed = self._get_pos_embed(pos_embed[:, 1:],patch_embed, H, W)
             else:
-                pos_embed = self._get_pos_embed(pos_embed,x, H, W)
-            print(i , x.shape , pos_embed.shape)
+                pos_embed = self._get_pos_embed(pos_embed,patch_embed, H, W)
+            print(x.shape,pos_embed.shape)
             x = x+pos_embed
             x = transformer(x)
             
