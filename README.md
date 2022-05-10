@@ -11,4 +11,5 @@
 |   3  |    [PVT](https://arxiv.org/abs/2102.12122) |  Realdr4g0n    |  [Link](https://exultant-pigment-092.notion.site/PVT-Pyramid-Vision-Transformer-65f0db2f0f054bd3a0db2483e71ea904) |     [Link](https://github.com/jhtobigs/ViT_Survey/blob/main/model/pvt.py)     |
 |   3  |    [MLP-Mixer](https://arxiv.org/abs/2105.01601)  |  jhtobigs    |  [Link](https://jhtobigs.oopy.io/mlp_mixer)  |     [Link](https://github.com/jhtobigs/ViT_Survey/blob/main/model/mixer.py)          |
 |   3  |    [Conv-Mixer](https://arxiv.org/abs/2201.09792) |  jhtobigs    |  [Link](https://jhtobigs.oopy.io/conv_mixer) |     [Link](https://github.com/jhtobigs/ViT_Survey/blob/main/model/mixer_conv.py)     |
+|   4  |    [MHFormer](https://arxiv.org/abs/2111.12707) |  Realdr4g0n    |  [Link](https://exultant-pigment-092.notion.site/MHFormer-Multi-Hypothesis-Transformer-b2b4a85c429448128069085d392b914f) |     [Link](https://github.com/jhtobigs/ViT_Survey/blob/main/model/mhformer.py)     |
 |   4  |    [BEiT](https://arxiv.org/abs/2106.08254) |  jhtobigs    |  [Link](https://jhtobigs.oopy.io/beit) |     [Link](https://github.com/jhtobigs/ViT_Survey/blob/main/model/beit.py)     |
