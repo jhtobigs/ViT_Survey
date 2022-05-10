@@ -3,7 +3,8 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import Input, Model
 from tensorflow.keras.layers import Layer, Dense, Dropout, LayerNormalization, Embedding
-from model.utils import create_padding_lookahed_mask, create_padding_mask, make_sine_pos_encoding
+from model.utils.utils import create_padding_lookahed_mask, create_padding_mask, make_sine_pos_encoding
+from einops.layers.tensorflow import Rearrange
 
 # Todo : Make Doctstring
 
@@ -29,7 +30,7 @@ class TransformerEmbedding(Layer):
 
     def call(self, x, training=True):
         x = self.embedding(x)
-        x *= self.dims**0.5
+        x *= self.dims ** 0.5
         x = self.positional_encoding(x)
         x = self.dropout(x)
         return x
@@ -52,9 +53,7 @@ class MultiHeadAttention(Layer):
         return x
 
     def _merge_heads(self, x):
-        B, H, N, D = tf.shape(x)
-        x = tf.transpose(x, [0, 2, 1, 3])
-        x = tf.reshape(x, (B, N, H * D))
+        x = Rearrange("b h n d -> b n (h d)")(x)
         return x
 
     def scale_dot_product(self, q, k, v, mask=None):

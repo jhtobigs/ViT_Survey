@@ -2,7 +2,7 @@ from turtle import pos
 import tensorflow as tf
 from tensorflow.keras import Model, Sequential
 from tensorflow.keras.layers import Layer, Dense, BatchNormalization, Embedding, Conv2D
-from model.utils import load_backbone, make_sine_pos_encoding, position_embedding_sine
+from model.utils.utils import load_backbone, make_sine_pos_encoding, position_embedding_sine
 from model.transformer import EncoderBlock, DecoderBlock
 
 
