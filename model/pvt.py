@@ -118,12 +118,11 @@ class PyramidVisionTransformer(Model):
         
 
         for i in range(len(self.stages)):
-            patch_embed = nn.Dense(units=self.embed_dims[i])
-            patch_norm = nn.LayerNormalization(axis=1)
-            tmp_img_size = img_size if i == 0 else img_size // (2**(i+1))
             patch_size = self.init_patch_size[0] if i == 0 else 2
-            H, W = tmp_img_size // patch_size, tmp_img_size // patch_size
-            num_patches =  H*W if i != self.stages[-1]-1 else H*W + 1
+            patch_embed = PatchEmbed(img_size=img_size if i == 0 else img_size // (2 ** (i + 1)),
+                                    patch_size=patch_size,
+                                    embed_dim=self.embed_dims[i])
+            num_patches =  patch_embed.num_patches if i != self.stages[-1] - 1 else patch_embed.num_patches + 1
             pos_embed = tf.Variable(initial_value=tf.random.normal([1,num_patches,self.embed_dims[i]]))
             
             transformer = Transformer(self.embed_dims[i], depth=self.depth[i], n_heads=self.num_heads[i], mlp_dim=self.embed_dims[i]*4)
